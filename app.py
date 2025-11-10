@@ -33,7 +33,7 @@ from sklearn.metrics import (
 
 # 2. LOAD THE COVID-19 DATASET
 # ------------------------------------------------------------
-data = pd.read_csv("/content/gdrive/MyDrive/5073country_wise_latest.csv")
+data = pd.read_csv("/Dashboard/data.csv")
 print("Dataset Loaded Successfully!")
 print("Shape:", data.shape)
 display(data.head())
