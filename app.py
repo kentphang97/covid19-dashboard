@@ -149,7 +149,7 @@ country_choice = st.selectbox("Select a Country:", country_list, index=default_i
 country_data = df[df["Country/Region"] == country_choice].iloc[0]
 
 # Display metrics
-st.markdown(f"### 🇲🇾 COVID-19 Statistics for {country_choice}")
+st.markdown(f"### COVID-19 Statistics for {country_choice}")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Confirmed", f"{country_data['Confirmed']:,}")
 col2.metric("Deaths", f"{country_data['Deaths']:,}")
@@ -169,7 +169,7 @@ st.plotly_chart(fig_pie, use_container_width=True)
 # -------------------------------
 # Trend Over Time (Optional)
 # -------------------------------
-st.subheader("📈 (Optional) Trends Over Time")
+st.subheader("1-Week Change In Confirmed Cases (Top10)")
 st.markdown("""
 If you have time-series data (daily updates), you can include a line chart to track cases over time.
 This example uses 'Confirmed last week' and '1 week change' as a trend indicator.
