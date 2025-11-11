@@ -65,7 +65,7 @@ st.markdown("""
 This interactive dashboard visualizes global COVID-19 data including **confirmed cases, recoveries, deaths, and regional trends**.
 Use the filters and charts below to explore how COVID-19 has impacted different countries and regions.
 """)
-st.markdown("""Data was retrieved from https://www.kaggle.com/datasets/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv which dated 22nd January 2020.""")
+st.markdown("""Data was retrieved from https://www.kaggle.com/datasets/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv which dated from 22nd January 2020 to 27nd July 2020.""")
 
 # -------------------------------
 # Global Overview
