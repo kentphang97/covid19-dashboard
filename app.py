@@ -4,7 +4,8 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-import streamlit
+import streamlit as st
+import plotly.express as px
 
 # Preprocessing & Model Selection
 from sklearn.model_selection import train_test_split
@@ -33,27 +34,167 @@ from sklearn.metrics import (
 
 # 2. LOAD THE COVID-19 DATASET
 # ------------------------------------------------------------
-data = pd.read_csv("/Dashboard/data.csv")
+df = pd.read_csv("./data.csv")
 print("Dataset Loaded Successfully!")
-print("Shape:", data.shape)
-display(data.head())
+print("Shape:", df.shape)
+print(df.head())
 
 # 3. DATA CLEANING AND EXPLORATORY DATA ANALYSIS (EDA)
 # ------------------------------------------------------------
 print("\n=== Missing Values ===")
-print(data.isnull().sum())
+print(df.isnull().sum())
 
 # Replace NaN with 0 for simplicity
-data.fillna(0, inplace=True)
+df.fillna(0, inplace=True)
 
 # Check duplicates
-print("\nDuplicate rows:", data.duplicated().sum())
+print("\nDuplicate rows:", df.duplicated().sum())
 
 # Info and Summary
-data.info()
+df.info()
 
-display(data.describe())
+print(df.describe())
 
+# --- Page Setup ---
+st.set_page_config(page_title="COVID-19 Dashboard", layout="wide")
+
+# Title and Introduction
+# -------------------------------
+st.title("🌍 COVID-19 Data Visualization Dashboard")
+st.markdown("""
+This interactive dashboard visualizes global COVID-19 data including **confirmed cases, recoveries, deaths, and regional trends**.
+Use the filters and charts below to explore how COVID-19 has impacted different countries and regions.
+""")
+st.markdown("""Data was retrieved from https://www.kaggle.com/datasets/imdevskp/corona-virus-report?select=covid_19_clean_complete.csv which dated 22nd January 2020.""")
+
+# -------------------------------
+# Global Overview
+# -------------------------------
+st.header("📊 Global Summary")
+
+total_confirmed = int(df["Confirmed"].sum())
+total_deaths = int(df["Deaths"].sum())
+total_recovered = int(df["Recovered"].sum())
+total_active = int(df["Active"].sum())
+
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Confirmed Cases", f"{total_confirmed:,}")
+col2.metric("Deaths", f"{total_deaths:,}")
+col3.metric("Recovered", f"{total_recovered:,}")
+col4.metric("Active Cases", f"{total_active:,}")
+
+st.markdown("---")
+
+# -------------------------------
+# Top 10 Countries
+# -------------------------------
+st.subheader("🏆 Top 10 Countries by Confirmed Cases")
+top10 = df.sort_values(by="Confirmed", ascending=False).head(10)
+fig_top10 = px.bar(
+    top10,
+    x="Country/Region",
+    y="Confirmed",
+    color="Confirmed",
+    text="Confirmed",
+    title="Top 10 Countries by Confirmed Cases"
+)
+fig_top10.update_traces(textposition='outside')
+st.plotly_chart(fig_top10, use_container_width=True)
+
+# -------------------------------
+# Regional Analysis
+# -------------------------------
+st.subheader("🌐 Cases by WHO Region")
+region_df = df.groupby("WHO Region")[["Confirmed", "Deaths", "Recovered"]].sum().reset_index()
+fig_region = px.bar(
+    region_df,
+    x="WHO Region",
+    y=["Confirmed", "Deaths", "Recovered"],
+    barmode="group",
+    title="COVID-19 Summary by WHO Region"
+)
+st.plotly_chart(fig_region, use_container_width=True)
+
+# -------------------------------
+# Interactive World Map
+# -------------------------------
+st.subheader("🗺️ Global Map View")
+fig_map = px.scatter_geo(
+    df,
+    locations="Country/Region",
+    locationmode="country names",
+    size="Confirmed",
+    color="Deaths",
+    hover_name="Country/Region",
+    title="COVID-19 Cases Around the World",
+    projection="natural earth",
+    color_continuous_scale="Reds"
+)
+st.plotly_chart(fig_map, use_container_width=True)
+
+# -------------------------------
+# Country Filter + Details (Default: Malaysia)
+# -------------------------------
+st.subheader("🔍 Country Details")
+
+# Sort and define default
+country_list = sorted(df["Country/Region"].unique())
+default_country = "Malaysia"
+default_index = country_list.index(default_country) if default_country in country_list else 0
+
+# Create dropdown with default = Malaysia
+country_choice = st.selectbox("Select a Country:", country_list, index=default_index)
+
+# Retrieve data for selected country
+country_data = df[df["Country/Region"] == country_choice].iloc[0]
+
+# Display metrics
+st.markdown(f"### 🇲🇾 COVID-19 Statistics for {country_choice}")
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Confirmed", f"{country_data['Confirmed']:,}")
+col2.metric("Deaths", f"{country_data['Deaths']:,}")
+col3.metric("Recovered", f"{country_data['Recovered']:,}")
+col4.metric("Active", f"{country_data['Active']:,}")
+
+# -------------------------------
+# Pie Chart for Selected Country (Default: Malaysia)
+# -------------------------------
+fig_pie = px.pie(
+    names=["Active", "Recovered", "Deaths"],
+    values=[country_data["Active"], country_data["Recovered"], country_data["Deaths"]],
+    title=f"COVID-19 Distribution in {country_choice}"
+)
+st.plotly_chart(fig_pie, use_container_width=True)
+
+# -------------------------------
+# Trend Over Time (Optional)
+# -------------------------------
+st.subheader("📈 (Optional) Trends Over Time")
+st.markdown("""
+If you have time-series data (daily updates), you can include a line chart to track cases over time.
+This example uses 'Confirmed last week' and '1 week change' as a trend indicator.
+""")
+
+if "Confirmed last week" in df.columns and "1 week change" in df.columns:
+    trend_df = df.sort_values("1 week change", ascending=False).head(10)
+    fig_trend = px.bar(
+        trend_df,
+        x="Country/Region",
+        y="1 week change",
+        color="1 week change",
+        title="1-Week Change in Confirmed Cases (Top 10)"
+    )
+    st.plotly_chart(fig_trend, use_container_width=True)
+else:
+    st.info("Time-series data not available in this CSV.")
+
+# -------------------------------
+# Footer
+# -------------------------------
+st.markdown("---")
+st.caption("📊 Data Source: Public COVID-19 Dataset (country_wise_latest.csv)")
+st.caption("Developed using Streamlit & Plotly")
+'''
 # Correlation Heatmap
 plt.figure(figsize=(12,8))
 sns.heatmap(data.select_dtypes(include=np.number).corr(), annot=True, cmap="coolwarm")
@@ -336,7 +477,7 @@ print("• Regression Models: Linear, DT, GB")
 print("• Clustering: K-Means (5 clusters), hierarchical, dbscan")
 print("==============================")
 
-
+'''
 
 
 
