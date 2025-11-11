@@ -60,7 +60,7 @@ st.set_page_config(page_title="COVID-19 Dashboard", layout="wide")
 
 # Title and Introduction
 # -------------------------------
-st.title("🌍 COVID-19 Data Visualization Dashboard")
+st.title("COVID-19 Data Visualization Dashboard")
 st.markdown("""
 This interactive dashboard visualizes global COVID-19 data including **confirmed cases, recoveries, deaths, and regional trends**.
 Use the filters and charts below to explore how COVID-19 has impacted different countries and regions.
@@ -70,7 +70,7 @@ st.markdown("""Data was retrieved from https://www.kaggle.com/datasets/imdevskp/
 # -------------------------------
 # Global Overview
 # -------------------------------
-st.header("📊 Global Summary")
+st.header("Global Summary")
 
 total_confirmed = int(df["Confirmed"].sum())
 total_deaths = int(df["Deaths"].sum())
@@ -88,7 +88,7 @@ st.markdown("---")
 # -------------------------------
 # Top 10 Countries
 # -------------------------------
-st.subheader("🏆 Top 10 Countries by Confirmed Cases")
+st.subheader("Top 10 Countries by Confirmed Cases")
 top10 = df.sort_values(by="Confirmed", ascending=False).head(10)
 fig_top10 = px.bar(
     top10,
@@ -104,7 +104,7 @@ st.plotly_chart(fig_top10, use_container_width=True)
 # -------------------------------
 # Regional Analysis
 # -------------------------------
-st.subheader("🌐 Cases by WHO Region")
+st.subheader("Cases by WHO Region")
 region_df = df.groupby("WHO Region")[["Confirmed", "Deaths", "Recovered"]].sum().reset_index()
 fig_region = px.bar(
     region_df,
@@ -118,7 +118,7 @@ st.plotly_chart(fig_region, use_container_width=True)
 # -------------------------------
 # Interactive World Map
 # -------------------------------
-st.subheader("🗺️ Global Map View")
+st.subheader("Global Map View")
 fig_map = px.scatter_geo(
     df,
     locations="Country/Region",
@@ -135,7 +135,7 @@ st.plotly_chart(fig_map, use_container_width=True)
 # -------------------------------
 # Country Filter + Details (Default: Malaysia)
 # -------------------------------
-st.subheader("🔍 Country Details")
+st.subheader("Country Details")
 
 # Sort and define default
 country_list = sorted(df["Country/Region"].unique())
@@ -192,7 +192,7 @@ else:
 # Footer
 # -------------------------------
 st.markdown("---")
-st.caption("📊 Data Source: Public COVID-19 Dataset (country_wise_latest.csv)")
+st.caption("Data Source: Public COVID-19 Dataset (country_wise_latest.csv)")
 st.caption("Developed using Streamlit & Plotly")
 '''
 # Correlation Heatmap
